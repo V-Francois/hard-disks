@@ -13,6 +13,20 @@ pub fn are_disks_overlapping(disk_1: &Disk, disk_2: &Disk, sim_box: &Box) -> boo
     return rsq < sigma_sq;
 }
 
+pub fn are_any_disks_overlapping(disks: &Vec<Disk>, sim_box: &Box) -> bool {
+    for i in 0..disks.len() {
+        for j in 0..disks.len() {
+            if i == j {
+                continue;
+            }
+            if are_disks_overlapping(&disks[i], &disks[j], &sim_box) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
