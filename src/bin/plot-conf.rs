@@ -1,4 +1,5 @@
 use std::env;
+use std::path;
 use std::process;
 
 fn main() -> process::ExitCode {
@@ -10,6 +11,10 @@ fn main() -> process::ExitCode {
     }
 
     let file_path = &args[1];
+    if !path::Path::new(file_path).exists() {
+        eprintln!("Path {} doesn’t exist", file_path);
+        return process::ExitCode::from(1);
+    }
     println!("filepath: {}", file_path);
 
     process::ExitCode::SUCCESS
