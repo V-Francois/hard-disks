@@ -1,6 +1,4 @@
-use crate::disks::are_any_disks_overlapping;
-use crate::io::write_coords_to_file;
-use std::path::Path;
+use std::path;
 
 pub mod disks;
 pub mod geometry;
@@ -25,8 +23,8 @@ fn main() {
 
     let sim_box = geometry::Box { lx: 20.0, ly: 20.0 };
     // check that the starting conf has no overlaps
-    assert!(!are_any_disks_overlapping(&disks, &sim_box));
+    assert!(!disks::are_any_disks_overlapping(&disks, &sim_box));
 
-    let filepath = Path::new("initial.txt");
-    write_coords_to_file(&disks, filepath);
+    let filepath = path::Path::new("initial.txt");
+    io::write_coords_to_file(&disks, filepath);
 }
