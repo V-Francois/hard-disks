@@ -26,5 +26,5 @@ fn main() {
     assert!(!disks::are_any_disks_overlapping(&disks, &sim_box));
 
     let filepath = path::Path::new("initial.txt");
-    io::write_coords_to_file(&disks, filepath);
+    io::write_coords_to_file(&disks, &sim_box, filepath);
 }
