@@ -10,8 +10,8 @@ fn main() {
     for i in 0..10 {
         for j in 0..10 {
             let pos = geometry::Position {
-                x: i as f64,
-                y: j as f64,
+                x: (i * 2) as f64,
+                y: (j * 2) as f64,
             };
             let new_disk = disks::Disk {
                 position: pos,
