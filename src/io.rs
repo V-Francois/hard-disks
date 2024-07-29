@@ -16,6 +16,12 @@ pub fn write_coords_to_file(disks: &Vec<Disk>, sim_box: &geometry::Box, filepath
     )
     .unwrap();
     for disk in disks.iter() {
-        writeln!(file, "{} {}", disk.position.x, disk.position.y).unwrap();
+        writeln!(
+            file,
+            "{} {}",
+            geometry::put_in_box_x(disk.position.x, sim_box),
+            geometry::put_in_box_y(disk.position.y, sim_box),
+        )
+        .unwrap();
     }
 }

@@ -8,6 +8,7 @@ default-run = "hard-disks"
 
 [dependencies]
 draw = "0.3.0"
+rand = "0.8.5"
 
 [[bin]]
 name = "plot-conf"
