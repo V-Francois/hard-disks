@@ -1,7 +1,6 @@
 use rand;
 use rand::Rng;
 
-use crate::disks;
 use crate::geometry;
 use crate::state;
 
@@ -81,7 +80,7 @@ pub fn sample_npt(state: &mut state::State, pressure_over_kt: f64, nb_steps: u32
                 }
             }
 
-            if disks::are_any_disks_overlapping(&state.disks, &state.sim_box) {
+            if state.are_any_disks_overlapping() {
                 // Revert all the changes
                 if change_along_x {
                     state.sim_box.lx /= ratio;

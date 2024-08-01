@@ -39,6 +39,15 @@ impl State {
         return false;
     }
 
+    pub fn are_any_disks_overlapping(&self) -> bool {
+        for disk_id in 0..self.disks.len() {
+            if self.is_disk_overlapping(disk_id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     pub fn update_disk_coordinates(&mut self, disk_id: usize, new_x: f64, new_y: f64) {
         self.disks[disk_id].position.x = geometry::put_in_box_x(new_x, &self.sim_box);
         self.disks[disk_id].position.y = geometry::put_in_box_y(new_y, &self.sim_box);
