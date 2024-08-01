@@ -68,7 +68,7 @@ pub fn put_in_box_y(y: f64, sim_box: &Box) -> f64 {
 }
 
 pub fn create_grid(disks: &mut Vec<disks::Disk>, sim_box: &Box) -> Grid {
-    let dx_dy = disks[0].radius * 3.0;
+    let dx_dy = disks[0].radius * 2.2;
     let nx: i32 = (sim_box.lx / dx_dy).floor() as i32;
     let ny: i32 = (sim_box.ly / dx_dy).floor() as i32;
     let number_of_cells = nx * ny;
@@ -123,7 +123,7 @@ pub fn create_grid(disks: &mut Vec<disks::Disk>, sim_box: &Box) -> Grid {
     for i in 0..disks.len() {
         let cell_id = cell_id_from_xy(disks[i].position.x, disks[i].position.y);
         disks[i].cell_id = cell_id;
-        cells[cell_id].disk_ids.push(cell_id);
+        cells[cell_id].disk_ids.push(i);
     }
 
     return Grid {

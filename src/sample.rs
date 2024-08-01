@@ -18,27 +18,17 @@ pub fn sample_nvt(state: &mut state::State, nb_steps: u32) -> f64 {
 
         let disk_index: usize = rng.gen_range(0..nb_disks).try_into().unwrap();
 
-        state.disks[disk_index].position.x += dx;
-        state.disks[disk_index].position.y += dy;
+        let old_x = state.disks[disk_index].position.x;
+        let old_y = state.disks[disk_index].position.y;
+        let new_x = old_x + dx;
+        let new_y = old_y + dy;
 
-        let mut overlaps = false;
-        for j in 0..state.disks.len() {
-            if j == disk_index {
-                continue;
-            }
-            if disks::are_disks_overlapping(
-                &state.disks[disk_index],
-                &state.disks[j],
-                &state.sim_box,
-            ) {
-                overlaps = true;
-                break;
-            }
-        }
+        state.update_disk_coordinates(disk_index, new_x, new_y);
+
+        let overlaps = state.is_disk_overlapping(disk_index);
 
         if overlaps {
-            state.disks[disk_index].position.x -= dx;
-            state.disks[disk_index].position.y -= dy;
+            state.update_disk_coordinates(disk_index, old_x, old_y);
         } else {
             nb_success += 1;
         }
@@ -109,6 +99,8 @@ pub fn sample_npt(state: &mut state::State, pressure_over_kt: f64, nb_steps: u32
             }
         }
         if accept_volume_change {
+            // TODO: do a smarter thing
+            state.update_grid();
             nb_accepted += 1;
         }
     }
