@@ -29,6 +29,9 @@ fn main() {
     let filepath = path::Path::new("initial.txt");
     io::write_coords_to_file(&disks, &sim_box, filepath);
 
+    // create grid list
+    let grid = geometry::create_grid(&disks, &sim_box);
+
     let nb_steps = 1e7 as u32;
     let acceptance_rate = sample::sample_npt(&mut disks, &mut sim_box, 5.0, nb_steps);
     println!("Acceptance rate: {}", acceptance_rate);
