@@ -5,6 +5,7 @@ use crate::geometry::Position;
 pub struct Disk {
     pub position: Position,
     pub radius: f64,
+    pub cell_id: usize,
 }
 
 pub fn are_disks_overlapping(disk_1: &Disk, disk_2: &Disk, sim_box: &Box) -> bool {
@@ -40,16 +41,19 @@ mod tests {
         let disk_1 = Disk {
             position: Position { x: 0.0, y: 0.0 },
             radius: 2.0,
+            cell_id: 0,
         };
 
         let disk_2 = Disk {
             position: Position { x: 0.0, y: 3.0 },
             radius: 2.0,
+            cell_id: 0,
         };
 
         let disk_3 = Disk {
             position: Position { x: 0.0, y: 5.0 },
             radius: 2.0,
+            cell_id: 0,
         };
         assert!(are_disks_overlapping(&disk_1, &disk_2, &sim_box_1));
         assert!(!are_disks_overlapping(&disk_1, &disk_3, &sim_box_1));
