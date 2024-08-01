@@ -1,26 +1,26 @@
-use crate::disks::Disk;
 use crate::geometry;
+use crate::state;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-pub fn write_coords_to_file(disks: &Vec<Disk>, sim_box: &geometry::Box, filepath: &Path) {
+pub fn write_coords_to_file(state: &state::State, filepath: &Path) {
     let mut file = File::create(&filepath).unwrap();
     writeln!(
         file,
         "{} {} {} {}",
-        disks.len(),
-        disks[0].radius,
-        sim_box.lx,
-        sim_box.ly
+        state.disks.len(),
+        state.disks[0].radius,
+        state.sim_box.lx,
+        state.sim_box.ly
     )
     .unwrap();
-    for disk in disks.iter() {
+    for disk in state.disks.iter() {
         writeln!(
             file,
             "{} {}",
-            geometry::put_in_box_x(disk.position.x, sim_box),
-            geometry::put_in_box_y(disk.position.y, sim_box),
+            geometry::put_in_box_x(disk.position.x, &state.sim_box),
+            geometry::put_in_box_y(disk.position.y, &state.sim_box),
         )
         .unwrap();
     }
