@@ -22,16 +22,27 @@ fn main() {
 
     let config = config::Config::from_yaml_file(file_path.as_str());
 
-    //let mut state = state::State::hexagonal_packing(10, 10, 0.8);
-    //
-    //let filepath = path::Path::new("initial.txt");
-    //io::write_coords_to_file(&state, filepath);
-    //
-    //let nb_steps = 1e7 as u32;
-    //let acceptance_rate = sample::sample_npt(&mut state, 10.0, nb_steps);
-    ////let acceptance_rate = sample::sample_nvt(&mut state, nb_steps);
-    //println!("Acceptance rate: {}", acceptance_rate);
-    //
-    //let filepath = path::Path::new("final.txt");
-    //io::write_coords_to_file(&state, filepath);
+    let disk_each_direction = (config.n_disk as f64).sqrt().floor() as u32;
+    if config.n_disk != disk_each_direction * disk_each_direction {
+        panic!("Number of disk must be a perfect square");
+    }
+    let mut state = state::State::hexagonal_packing(
+        disk_each_direction,
+        disk_each_direction,
+        config.packing_fraction,
+    );
+
+    let filepath = path::Path::new("initial.txt");
+    io::write_coords_to_file(&state, filepath);
+
+    if let Some(pressure) = config.pressure {
+        println!("NPT");
+        let acceptance_rate = sample::sample_npt(&mut state, pressure, config.n_step);
+    } else {
+        println!("NVT");
+        let acceptance_rate = sample::sample_nvt(&mut state, config.n_step);
+    }
+
+    let filepath = path::Path::new("final.txt");
+    io::write_coords_to_file(&state, filepath);
 }
