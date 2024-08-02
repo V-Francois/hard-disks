@@ -13,8 +13,8 @@ fn main() {
     io::write_coords_to_file(&state, filepath);
 
     let nb_steps = 1e7 as u32;
-    //let acceptance_rate = sample::sample_npt(&mut state, 5.0, nb_steps);
-    let acceptance_rate = sample::sample_nvt(&mut state, nb_steps);
+    let acceptance_rate = sample::sample_npt(&mut state, 10.0, nb_steps);
+    //let acceptance_rate = sample::sample_nvt(&mut state, nb_steps);
     println!("Acceptance rate: {}", acceptance_rate);
 
     let filepath = path::Path::new("final.txt");

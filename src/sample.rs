@@ -1,7 +1,6 @@
 use rand;
 use rand::Rng;
 
-use crate::geometry;
 use crate::state;
 
 pub fn sample_nvt(state: &mut state::State, nb_steps: u32) -> f64 {
@@ -54,12 +53,8 @@ pub fn sample_npt(state: &mut state::State, pressure_over_kt: f64, nb_steps: u32
 
         // Compute proba now, before checking for overlap. Because if we say no, no need to check for overlaps
         let volume_before = state.sim_box.lx * state.sim_box.ly;
-        let volume_after: f64;
-        if change_along_x {
-            volume_after = state.sim_box.lx * ratio * state.sim_box.ly;
-        } else {
-            volume_after = state.sim_box.lx * state.sim_box.ly * ratio;
-        }
+        let volume_after = state.sim_box.lx * ratio * state.sim_box.ly;
+
         let probability = (-(state.disks.len() as f64 * (volume_after.ln() - volume_before.ln())
             + pressure_over_kt * (volume_after - volume_before)))
             .exp();
@@ -68,15 +63,21 @@ pub fn sample_npt(state: &mut state::State, pressure_over_kt: f64, nb_steps: u32
         if probability > rng.gen::<f64>() {
             if change_along_x {
                 state.sim_box.lx *= ratio;
-                for disk in state.disks.iter_mut() {
-                    disk.position.x =
-                        geometry::put_in_box_x(disk.position.x, &state.sim_box) * ratio;
+                for disk_id in 0..state.disks.len() {
+                    state.update_disk_coordinates(
+                        disk_id,
+                        state.disks[disk_id].position.x * ratio,
+                        state.disks[disk_id].position.y,
+                    );
                 }
             } else {
                 state.sim_box.ly *= ratio;
-                for disk in state.disks.iter_mut() {
-                    disk.position.y =
-                        geometry::put_in_box_y(disk.position.y, &state.sim_box) * ratio;
+                for disk_id in 0..state.disks.len() {
+                    state.update_disk_coordinates(
+                        disk_id,
+                        state.disks[disk_id].position.x,
+                        state.disks[disk_id].position.y * ratio,
+                    );
                 }
             }
 
@@ -84,13 +85,21 @@ pub fn sample_npt(state: &mut state::State, pressure_over_kt: f64, nb_steps: u32
                 // Revert all the changes
                 if change_along_x {
                     state.sim_box.lx /= ratio;
-                    for disk in state.disks.iter_mut() {
-                        disk.position.x /= ratio;
+                    for disk_id in 0..state.disks.len() {
+                        state.update_disk_coordinates(
+                            disk_id,
+                            state.disks[disk_id].position.x / ratio,
+                            state.disks[disk_id].position.y,
+                        );
                     }
                 } else {
                     state.sim_box.ly /= ratio;
-                    for disk in state.disks.iter_mut() {
-                        disk.position.y /= ratio;
+                    for disk_id in 0..state.disks.len() {
+                        state.update_disk_coordinates(
+                            disk_id,
+                            state.disks[disk_id].position.x,
+                            state.disks[disk_id].position.y / ratio,
+                        );
                     }
                 }
             } else {
