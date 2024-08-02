@@ -1,0 +1,5 @@
+n_disk: 100
+packing_fraction: 0.8
+n_steps: 10000000
+
+      
