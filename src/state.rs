@@ -1,3 +1,5 @@
+use std::f64::consts::PI;
+
 use crate::disks;
 use crate::geometry;
 
@@ -100,6 +102,64 @@ impl State {
         }
 
         let sim_box = geometry::Box { lx: 20.0, ly: 20.0 };
+
+        // create grid list
+        let grid = geometry::create_grid(&mut disks, &sim_box);
+
+        return State {
+            disks: disks,
+            grid: grid,
+            sim_box: sim_box,
+        };
+    }
+
+    pub fn hexagonal_packing(n_row: u32, n_column: u32, packing_fraction: f64) -> State {
+        if packing_fraction < 0.0 || packing_fraction > 0.9 {
+            panic!("Invalid packing fraction");
+        }
+        if n_row % 2 != 0 {
+            panic!("Number of rows should be even");
+        }
+        if n_column % 2 != 0 {
+            panic!("Number of columns should be even");
+        }
+        let number_of_disks = n_row * n_column;
+
+        let radius = 0.5;
+        let disk_volume = number_of_disks as f64 * radius * radius * PI;
+        let box_volume = disk_volume / packing_fraction;
+
+        let ly_over_lx = 3.0_f64.sqrt() / 2.0 * (n_row as f64) / (n_column as f64);
+        // volume = lx * ly = ly/lx * lx² -> lx = sqrt(volume / ly_over_lx)
+        let lx = (box_volume / ly_over_lx).sqrt();
+        let ly = ly_over_lx * lx;
+
+        let dx = lx / (n_column as f64);
+        let dy = ly / (n_row as f64) * 2.0;
+
+        let mut disks: Vec<disks::Disk> = Vec::new();
+        let mut current_y = dy / 4.0;
+        for row in 0..n_row {
+            let mut current_x = dx / 4.0;
+            if row % 2 == 1 {
+                current_x += dx / 2.0;
+            }
+            for _ in 0..n_column {
+                let pos = geometry::Position {
+                    x: current_x,
+                    y: current_y,
+                };
+                let new_disk = disks::Disk {
+                    position: pos,
+                    radius: radius,
+                    cell_id: 0,
+                };
+                disks.push(new_disk);
+                current_x += dx;
+            }
+            current_y += dy / 2.0;
+        }
+        let sim_box = geometry::Box { lx: lx, ly: ly };
 
         // create grid list
         let grid = geometry::create_grid(&mut disks, &sim_box);
