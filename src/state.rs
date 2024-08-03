@@ -170,4 +170,11 @@ impl State {
             sim_box: sim_box,
         };
     }
+
+    pub fn get_density(&self) -> f64 {
+        let radius = self.disks[0].radius;
+        let disk_volume = self.disks.len() as f64 * radius * radius * PI;
+        let box_volume = self.sim_box.lx * self.sim_box.ly;
+        return disk_volume / box_volume;
+    }
 }
