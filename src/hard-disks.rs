@@ -42,7 +42,8 @@ fn main() {
         println!("thermo: {:?}", thermo);
     } else {
         println!("NVT");
-        let acceptance_rate = sample::sample_nvt(&mut state, config.n_step);
+        let thermo = sample::sample_nvt(&mut state, config.n_step);
+        println!("thermo: {:?}", thermo);
     }
 
     let filepath = path::Path::new("final.txt");
