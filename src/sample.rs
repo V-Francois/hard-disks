@@ -52,7 +52,7 @@ pub fn sample_npt(
 
     let mut rng = rand::thread_rng();
     let mut nb_accepted = 0;
-    let max_volume_ratio_percent = 0.5; // Allow +-1% changes
+    let max_volume_change = 2.0 / pressure_over_kt;
     let mut acceptance_nvt_sum = 0.0;
     for sweep_id in 0..number_of_sweeps {
         // Do a number of NVT step equal to the number of disks
@@ -60,13 +60,12 @@ pub fn sample_npt(
         acceptance_nvt_sum += nvt_thermo.nvt_acceptance_rate;
 
         // Try to change the volume
-        let ratio: f64 = 1.0 + (rng.gen::<f64>() - 0.5) * 2.0 * max_volume_ratio_percent / 100.0;
-
+        let volume_change: f64 = (rng.gen::<f64>() - 0.5) * 2.0 * max_volume_change;
         // Select either x or y direction
         let change_along_x: bool = rng.gen_bool(0.5);
-
         // Compute proba now, before checking for overlap. Because if we say no, no need to check for overlaps
         let volume_before = state.sim_box.lx * state.sim_box.ly;
+        let ratio = 1.0 + volume_change / volume_before;
         let volume_after = state.sim_box.lx * ratio * state.sim_box.ly;
 
         let probability = (-(state.disks.len() as f64 * (volume_after.ln() - volume_before.ln())
