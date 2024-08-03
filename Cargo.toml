@@ -9,6 +9,8 @@ default-run = "hard-disks"
 [dependencies]
 draw = "0.3.0"
 rand = "0.8.5"
+serde = { version = "1.0.204", features = ["derive"] }
+serde_yaml = "0.9.34"
 
 [[bin]]
 name = "plot-conf"
