@@ -7,6 +7,7 @@ pub mod geometry;
 pub mod io;
 pub mod sample;
 pub mod state;
+pub mod thermo;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -35,13 +36,16 @@ fn main() {
     let filepath = path::Path::new("initial.txt");
     io::write_coords_to_file(&state, filepath);
 
+    let thermo: thermo::Thermo;
     if let Some(pressure) = config.pressure {
         println!("NPT");
-        let acceptance_rate = sample::sample_npt(&mut state, pressure, config.n_step);
+        thermo = sample::sample_npt(&mut state, pressure, config.n_step);
     } else {
         println!("NVT");
-        let acceptance_rate = sample::sample_nvt(&mut state, config.n_step);
+        thermo = sample::sample_nvt(&mut state, config.n_step);
     }
+    let filepath = path::Path::new("thermo.csv");
+    thermo.to_csv(filepath);
 
     let filepath = path::Path::new("final.txt");
     io::write_coords_to_file(&state, filepath);

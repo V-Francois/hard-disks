@@ -2,9 +2,10 @@ use rand;
 use rand::Rng;
 
 use crate::state;
+use crate::thermo;
 
-pub fn sample_nvt(state: &mut state::State, nb_steps: u32) -> f64 {
-    let max_displacement = 0.5;
+pub fn sample_nvt(state: &mut state::State, nb_steps: u32) -> thermo::Thermo {
+    let max_displacement = 0.05;
     let mut rng = rand::thread_rng();
     let mut nb_success = 0;
     let nb_disks = state.disks.len() as u32;
@@ -31,19 +32,32 @@ pub fn sample_nvt(state: &mut state::State, nb_steps: u32) -> f64 {
             nb_success += 1;
         }
     }
-    return (nb_success as f64) / (nb_steps as f64);
+
+    let mut thermo = thermo::Thermo::empty_thermo();
+    thermo.nvt_acceptance_rate = nb_success as f64 / nb_steps as f64;
+
+    return thermo;
 }
 
-pub fn sample_npt(state: &mut state::State, pressure_over_kt: f64, nb_steps: u32) -> f64 {
+pub fn sample_npt(
+    state: &mut state::State,
+    pressure_over_kt: f64,
+    nb_steps: u32,
+) -> thermo::Thermo {
+    let mut thermo = thermo::Thermo::empty_thermo();
+    let number_of_sweeps_between_thermo_update = 100;
+
     // We’ll do N_disks NVT steps between attempts to change the volume
     let number_of_sweeps = (nb_steps as f32 / state.disks.len() as f32).ceil() as u32;
 
     let mut rng = rand::thread_rng();
     let mut nb_accepted = 0;
     let max_volume_ratio_percent = 0.5; // Allow +-1% changes
-    for _ in 0..number_of_sweeps {
+    let mut acceptance_nvt_sum = 0.0;
+    for sweep_id in 0..number_of_sweeps {
         // Do a number of NVT step equal to the number of disks
-        _ = sample_nvt(state, state.disks.len() as u32);
+        let nvt_thermo = sample_nvt(state, state.disks.len() as u32);
+        acceptance_nvt_sum += nvt_thermo.nvt_acceptance_rate;
 
         // Try to change the volume
         let ratio: f64 = 1.0 + (rng.gen::<f64>() - 0.5) * 2.0 * max_volume_ratio_percent / 100.0;
@@ -111,6 +125,14 @@ pub fn sample_npt(state: &mut state::State, pressure_over_kt: f64, nb_steps: u32
             state.update_grid();
             nb_accepted += 1;
         }
+
+        // Record time series of thermo quantities
+        if sweep_id % number_of_sweeps_between_thermo_update == 0 {
+            thermo.step.push(sweep_id * state.disks.len() as u32);
+            thermo.density.push(state.get_density());
+        }
     }
-    return (nb_accepted as f64) / (number_of_sweeps as f64);
+    thermo.npt_acceptance_rate = nb_accepted as f64 / number_of_sweeps as f64;
+    thermo.nvt_acceptance_rate = acceptance_nvt_sum as f64 / number_of_sweeps as f64;
+    return thermo;
 }
