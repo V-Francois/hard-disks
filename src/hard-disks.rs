@@ -37,10 +37,8 @@ fn main() {
 
     let thermo: thermo::Thermo;
     if let Some(pressure) = config.pressure {
-        println!("NPT");
         thermo = sample::sample_npt(&mut state, pressure, config.n_step);
     } else {
-        println!("NVT");
         thermo = sample::sample_nvt(&mut state, config.n_step);
     }
     let filepath = path::Path::new("thermo.csv");
