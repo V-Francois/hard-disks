@@ -4,7 +4,6 @@ use std::path;
 pub mod config;
 pub mod disks;
 pub mod geometry;
-pub mod io;
 pub mod sample;
 pub mod state;
 pub mod thermo;
@@ -34,7 +33,7 @@ fn main() {
     );
 
     let filepath = path::Path::new("initial.txt");
-    io::write_coords_to_file(&state, filepath);
+    state.write_coords_to_file(filepath);
 
     let thermo: thermo::Thermo;
     if let Some(pressure) = config.pressure {
@@ -48,5 +47,5 @@ fn main() {
     thermo.to_csv(filepath);
 
     let filepath = path::Path::new("final.txt");
-    io::write_coords_to_file(&state, filepath);
+    state.write_coords_to_file(filepath);
 }

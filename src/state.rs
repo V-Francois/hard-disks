@@ -1,4 +1,7 @@
 use std::f64::consts::PI;
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
 
 use crate::disks;
 use crate::geometry;
@@ -176,5 +179,27 @@ impl State {
         let disk_volume = self.disks.len() as f64 * radius * radius * PI;
         let box_volume = self.sim_box.lx * self.sim_box.ly;
         return disk_volume / box_volume;
+    }
+
+    pub fn write_coords_to_file(&self, filepath: &Path) {
+        let mut file = File::create(&filepath).unwrap();
+        writeln!(
+            file,
+            "{} {} {} {}",
+            self.disks.len(),
+            self.disks[0].radius,
+            self.sim_box.lx,
+            self.sim_box.ly
+        )
+        .unwrap();
+        for disk in self.disks.iter() {
+            writeln!(
+                file,
+                "{} {}",
+                geometry::put_in_box_x(disk.position.x, &self.sim_box),
+                geometry::put_in_box_y(disk.position.y, &self.sim_box),
+            )
+            .unwrap();
+        }
     }
 }
