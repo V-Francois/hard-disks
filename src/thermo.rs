@@ -20,16 +20,11 @@ impl Thermo {
         };
     }
 
-    pub fn to_csv(&self, filepath: &Path) {
+    pub fn density_to_csv(&self, filepath: &Path) {
         let mut file = File::create(&filepath).unwrap();
-        writeln!(file, "step,density,nvt_acceptance_rate,npt_acceptance_rate",).unwrap();
+        writeln!(file, "step,density",).unwrap();
         for i in 0..self.step.len() {
-            writeln!(
-                file,
-                "{},{},{},{}",
-                self.step[i], self.density[i], self.nvt_acceptance_rate, self.npt_acceptance_rate,
-            )
-            .unwrap();
+            writeln!(file, "{},{}", self.step[i], self.density[i],).unwrap();
         }
     }
 }
