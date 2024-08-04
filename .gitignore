@@ -1,1 +1,6 @@
 /target
+benchmark/results*
+benchmark/.benchmark
+*.txt
+*.svg
+*.csv
