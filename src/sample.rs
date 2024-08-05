@@ -5,6 +5,9 @@ use crate::state;
 use crate::thermo;
 
 pub fn sample_nvt(state: &mut state::State, nb_steps: u32) -> thermo::Thermo {
+    let mut thermo = thermo::Thermo::empty_thermo();
+    thermo.g_of_r.initialize_vectors(state.disks[0].radius);
+
     let max_displacement = 0.05;
     let mut rng = rand::thread_rng();
     let mut nb_success = 0;
@@ -32,8 +35,6 @@ pub fn sample_nvt(state: &mut state::State, nb_steps: u32) -> thermo::Thermo {
             nb_success += 1;
         }
     }
-
-    let mut thermo = thermo::Thermo::empty_thermo();
     thermo.nvt_acceptance_rate = nb_success as f64 / nb_steps as f64;
 
     return thermo;
