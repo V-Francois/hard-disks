@@ -38,11 +38,12 @@ fn main() {
     let thermo: thermo::Thermo;
     if let Some(pressure) = config.pressure {
         thermo = sample::sample_npt(&mut state, pressure, config.n_step);
-        let filepath = path::Path::new("density.csv");
-        thermo.density_to_csv(filepath);
     } else {
         thermo = sample::sample_nvt(&mut state, config.n_step);
     }
+
+    let filepath = path::Path::new("results.yaml");
+    thermo.to_yaml(filepath);
 
     let filepath = path::Path::new("final.txt");
     state.write_coords_to_file(filepath);

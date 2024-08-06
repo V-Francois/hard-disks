@@ -1,9 +1,8 @@
 use crate::{geometry, state};
-use std::fs::File;
-use std::io::Write;
+use serde::{Deserialize, Serialize};
 use std::path::Path;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Thermo {
     pub step: Vec<u32>,
     pub density: Vec<f64>,
@@ -12,7 +11,7 @@ pub struct Thermo {
     pub g_of_r: GofRlowR,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct GofRlowR {
     pub r: Vec<f64>,
     pub g: Vec<u32>,
@@ -32,12 +31,13 @@ impl Thermo {
         };
     }
 
-    pub fn density_to_csv(&self, filepath: &Path) {
-        let mut file = File::create(&filepath).unwrap();
-        writeln!(file, "step,density",).unwrap();
-        for i in 0..self.step.len() {
-            writeln!(file, "{},{}", self.step[i], self.density[i],).unwrap();
-        }
+    pub fn to_yaml(&self, filepath: &Path) {
+        let f = std::fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(filepath)
+            .expect("Couldn't open file");
+        serde_yaml::to_writer(f, &self).unwrap();
     }
 }
 
