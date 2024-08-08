@@ -181,6 +181,11 @@ impl State {
         return disk_volume / box_volume;
     }
 
+    pub fn get_number_density(&self) -> f64 {
+        let box_volume = self.sim_box.lx * self.sim_box.ly;
+        return self.disks.len() as f64 / box_volume;
+    }
+
     pub fn write_coords_to_file(&self, filepath: &Path) {
         let mut file = File::create(&filepath).unwrap();
         writeln!(

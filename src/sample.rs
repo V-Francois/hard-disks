@@ -5,11 +5,15 @@ use crate::state;
 use crate::thermo;
 
 pub fn sample_nvt(state: &mut state::State, nb_steps: u32) -> thermo::Thermo {
+    let mut thermo = thermo::Thermo::empty_thermo();
+    thermo.g_of_r.initialize_vectors(state.disks[0].radius);
+
     let max_displacement = 0.05;
     let mut rng = rand::thread_rng();
     let mut nb_success = 0;
     let nb_disks = state.disks.len() as u32;
-    for _ in 0..nb_steps {
+    let number_steps_between_updates = 100 * nb_disks;
+    for step_id in 0..nb_steps {
         let theta: f64 = rng.gen();
         let r: f64 = rng.gen();
         let dx = r * theta.cos() * max_displacement;
@@ -31,10 +35,13 @@ pub fn sample_nvt(state: &mut state::State, nb_steps: u32) -> thermo::Thermo {
         } else {
             nb_success += 1;
         }
-    }
 
-    let mut thermo = thermo::Thermo::empty_thermo();
+        if step_id % number_steps_between_updates == 0 {
+            thermo.g_of_r.update(state);
+        }
+    }
     thermo.nvt_acceptance_rate = nb_success as f64 / nb_steps as f64;
+    thermo.g_of_r.renormalize(&state);
 
     return thermo;
 }

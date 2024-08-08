@@ -41,8 +41,9 @@ fn main() {
     } else {
         thermo = sample::sample_nvt(&mut state, config.n_step);
     }
-    let filepath = path::Path::new("thermo.csv");
-    thermo.to_csv(filepath);
+
+    let filepath = path::Path::new("results.yaml");
+    thermo.to_yaml(filepath);
 
     let filepath = path::Path::new("final.txt");
     state.write_coords_to_file(filepath);
