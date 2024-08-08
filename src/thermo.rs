@@ -1,5 +1,7 @@
 use crate::{geometry, state};
 use serde::{Deserialize, Serialize};
+use std::f64::consts::PI;
+use std::fs::File;
 use std::path::Path;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -18,6 +20,7 @@ pub struct GofRlowR {
     counter: u32,
     r_max: f64,
     dr: f64,
+    normalized_g: Vec<f64>,
 }
 
 impl Thermo {
@@ -32,12 +35,13 @@ impl Thermo {
     }
 
     pub fn to_yaml(&self, filepath: &Path) {
-        let f = std::fs::OpenOptions::new()
-            .write(true)
-            .create(true)
-            .open(filepath)
-            .expect("Couldn't open file");
-        serde_yaml::to_writer(f, &self).unwrap();
+        let file = File::create(&filepath).unwrap();
+        //let f = std::fs::OpenOptions::new()
+        //    .write(true)
+        //    .create(true)
+        //    .open(filepath)
+        //    .expect("Couldn't open file");
+        serde_yaml::to_writer(file, &self).unwrap();
     }
 }
 
@@ -49,6 +53,7 @@ impl GofRlowR {
             counter: 0,
             r_max: 0.0,
             dr: 0.0,
+            normalized_g: Vec::new(),
         };
     }
 
@@ -63,6 +68,7 @@ impl GofRlowR {
             self.r.push(r);
             r += dr;
             self.g.push(0);
+            self.normalized_g.push(0.0);
         }
         self.counter = 0;
         self.r_max = r - dr / 2.0;
@@ -86,5 +92,18 @@ impl GofRlowR {
             }
         }
         self.counter += 1;
+    }
+
+    pub fn renormalize(&mut self, state: &state::State) {
+        let number_density = state.get_number_density();
+        for i in 0..self.g.len() {
+            let r_low = self.r[i] - self.dr / 2.0;
+            let r_high = r_low + self.dr;
+            // surface area at that distance
+            let surface_area = PI * (r_high * r_high - r_low * r_low);
+            let expected_value = surface_area * number_density * state.disks.len() as f64;
+
+            self.normalized_g[i] = self.g[i] as f64 / expected_value / self.counter as f64;
+        }
     }
 }
