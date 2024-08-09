@@ -14,10 +14,9 @@ pub fn sample_nvt(state: &mut state::State, nb_steps: u32) -> thermo::Thermo {
     let nb_disks = state.disks.len() as u32;
     let number_steps_between_updates = 100 * nb_disks;
     for step_id in 0..nb_steps {
-        let theta: f64 = rng.gen();
-        let r: f64 = rng.gen();
-        let dx = r * theta.cos() * max_displacement;
-        let dy = r * theta.sin() * max_displacement;
+        // Non isotropic
+        let dx: f64 = rng.gen::<f64>() * max_displacement;
+        let dy: f64 = rng.gen::<f64>() * max_displacement;
 
         let disk_index: usize = rng.gen_range(0..nb_disks).try_into().unwrap();
 
