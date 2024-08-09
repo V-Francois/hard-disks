@@ -1,3 +1,3 @@
 n_disk: 256
-packing_fraction: 0.5618
+packing_fraction: DENSITY
 n_step: 100000000
